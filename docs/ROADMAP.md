@@ -25,6 +25,22 @@ funcionales en `docs/specs/`.
 - [x] Dashboard: Proveedores, Productos, Stock, Rentabilidad
 - [x] Tests de reglas puras + integración HTTP→SQLite real
 
+## Fase 0.6 — Automation Core ✅
+
+- [x] Orchestrator, Scheduler central, Producer/Consumer, Job Manager, Retry Manager, Audit Logger
+- [x] 2 Cron Triggers (Scheduler y Recovery Worker); frecuencias en D1 editables desde el dashboard
+- [x] Hora Argentina (zona IANA en servidor, sin depender del navegador)
+- [x] Locks, idempotencia, timeouts, circuit breakers, DLQ y recuperación desde D1
+
+## Fase 0.7 — Discovery + Content Engine ✅
+
+- [x] Fuentes con adaptadores intercambiables (NOT_CONFIGURED sin conector real)
+- [x] Productos detectados, categorías, competidores, demanda y precios con fuente y fecha
+- [x] Tendencias, saturación, oportunidades y Product Scoring 0–100 con confianza
+- [x] Risk Guardian obligatorio (la puntuación no lo saltea)
+- [x] Content Engine con plantillas propias y control de afirmaciones
+- [ ] Especificar Risk Guardian completo (hoy reutiliza los controles existentes)
+
 ## Fase 1 — Especificaciones y CI
 
 - [ ] Incorporar especificaciones funcionales en `docs/specs/`

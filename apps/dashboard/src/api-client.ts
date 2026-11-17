@@ -1,31 +1,61 @@
 import { z } from 'zod';
 import {
+  AnalysisDtoSchema,
+  CategoryDtoSchema,
+  CompetitorDtoSchema,
+  DiscoveredProductDetailDtoSchema,
+  DiscoveredProductDtoSchema,
+  GeneratedContentDtoSchema,
+  SourceDtoSchema,
+  SourceSyncResultSchema,
+  type CreateCategoryRequest,
+  type CreateCompetitorRequest,
+  type CreateDiscoveredProductRequest,
+  type CreateSourceRequest,
+  type DiscoveryStatus,
+  type RecordAttributeRequest,
+  type RecordDemandObservationRequest,
+  type RecordImageRequest,
+  type RecordPriceObservationRequest,
+  type UpdateDiscoveredProductRequest,
+  CircuitBreakerDtoSchema,
+  CreateJobResponseSchema,
   ErrorResponseSchema,
   EvidenceDtoSchema,
   FinancialGuardResultSchema,
   HealthResponseSchema,
   InventorySnapshotDtoSchema,
+  JobDetailDtoSchema,
+  JobDtoSchema,
+  JobTypeDtoSchema,
   listOf,
   ProductCostDtoSchema,
   ProductDtoSchema,
   ProfitBreakdownSchema,
   ProfitCalculationDtoSchema,
+  ScheduleDtoSchema,
+  ServerClockDtoSchema,
   SupplierDetailDtoSchema,
   SupplierDtoSchema,
   SupplierProductDtoSchema,
   TenantDtoSchema,
+  TickResultDtoSchema,
   type ChangeSupplierStatusRequest,
   type CostComponent,
+  type CreateJobRequest,
   type CreateProductRequest,
+  type CreateScheduleRequest,
   type CreateSupplierProductRequest,
   type CreateSupplierRequest,
   type CreateTenantRequest,
   type FinancialGuardRequest,
   type HealthResponse,
+  type JobStatus,
   type ProfitSimulationRequest,
   type RecordEvidenceRequest,
   type RecordInventoryRequest,
   type ReviewEvidenceRequest,
+  type UpdateScheduleRequest,
   type UpdateSupplierPriceRequest,
 } from '@vc/shared';
 
@@ -89,7 +119,83 @@ const patch = <S extends z.ZodType>(path: string, schema: S, body: unknown) =>
 export const fetchHealth = (signal?: AbortSignal): Promise<HealthResponse> =>
   request('/health', HealthResponseSchema, signal ? { signal } : {});
 
+const idOnly = z.object({ id: z.uuid() });
+
 export const api = {
+  discovery: {
+    sources: () => request('/v1/discovery/sources', listOf(SourceDtoSchema)),
+    createSource: (body: CreateSourceRequest) =>
+      post('/v1/discovery/sources', SourceDtoSchema, body),
+    syncSource: (id: string) =>
+      post(`/v1/discovery/sources/${id}/sync`, SourceSyncResultSchema, {}),
+    categories: () => request('/v1/discovery/categories', listOf(CategoryDtoSchema)),
+    createCategory: (body: CreateCategoryRequest) =>
+      post('/v1/discovery/categories', CategoryDtoSchema, body),
+    competitors: () => request('/v1/discovery/competitors', listOf(CompetitorDtoSchema)),
+    createCompetitor: (body: CreateCompetitorRequest) =>
+      post('/v1/discovery/competitors', CompetitorDtoSchema, body),
+    radar: () => request('/v1/discovery/radar', listOf(DiscoveredProductDtoSchema)),
+    products: (status: DiscoveryStatus) =>
+      request(`/v1/discovery/products?status=${status}`, listOf(DiscoveredProductDtoSchema)),
+    product: (id: string) =>
+      request(`/v1/discovery/products/${id}`, DiscoveredProductDetailDtoSchema),
+    createProduct: (body: CreateDiscoveredProductRequest) =>
+      post('/v1/discovery/products', DiscoveredProductDtoSchema, body),
+    updateProduct: (id: string, body: UpdateDiscoveredProductRequest) =>
+      patch(`/v1/discovery/products/${id}`, DiscoveredProductDtoSchema, body),
+    classify: (id: string) =>
+      post(`/v1/discovery/products/${id}/classify`, DiscoveredProductDtoSchema, {}),
+    recordDemand: (id: string, body: RecordDemandObservationRequest) =>
+      post(`/v1/discovery/products/${id}/demand`, idOnly, body),
+    recordPrice: (id: string, body: RecordPriceObservationRequest) =>
+      post(`/v1/discovery/products/${id}/prices`, idOnly, body),
+    recordAttribute: (id: string, body: RecordAttributeRequest) =>
+      post(`/v1/discovery/products/${id}/attributes`, idOnly, body),
+    recordImage: (id: string, body: RecordImageRequest) =>
+      post(`/v1/discovery/products/${id}/images`, idOnly, body),
+    analyze: (id: string) => post(`/v1/discovery/products/${id}/analyze`, AnalysisDtoSchema, {}),
+    promote: (id: string) =>
+      post(
+        `/v1/discovery/products/${id}/promote`,
+        z.object({ product: DiscoveredProductDtoSchema, analysis: AnalysisDtoSchema }),
+        {},
+      ),
+    discard: (id: string, reason: string) =>
+      post(`/v1/discovery/products/${id}/discard`, DiscoveredProductDtoSchema, { reason }),
+    reopen: (id: string) =>
+      post(`/v1/discovery/products/${id}/reopen`, DiscoveredProductDtoSchema, {}),
+    generateContent: (id: string) =>
+      post(`/v1/discovery/products/${id}/content`, GeneratedContentDtoSchema, {}),
+    contents: () => request('/v1/discovery/content', listOf(GeneratedContentDtoSchema)),
+  },
+  automation: {
+    clock: () => request('/v1/automation/clock', ServerClockDtoSchema),
+    jobTypes: () => request('/v1/automation/job-types', listOf(JobTypeDtoSchema)),
+    jobs: (status?: JobStatus) =>
+      request(
+        status ? `/v1/automation/jobs?status=${status}` : '/v1/automation/jobs',
+        listOf(JobDtoSchema),
+      ),
+    job: (id: string) => request(`/v1/automation/jobs/${id}`, JobDetailDtoSchema),
+    createJob: (body: CreateJobRequest) =>
+      post('/v1/automation/jobs', CreateJobResponseSchema, body),
+    cancelJob: (id: string) => post(`/v1/automation/jobs/${id}/cancel`, JobDtoSchema, {}),
+    retryJob: (id: string) => post(`/v1/automation/jobs/${id}/retry`, JobDtoSchema, {}),
+    schedules: () => request('/v1/automation/schedules', listOf(ScheduleDtoSchema)),
+    createSchedule: (body: CreateScheduleRequest) =>
+      post('/v1/automation/schedules', ScheduleDtoSchema, body),
+    updateSchedule: (id: string, body: UpdateScheduleRequest) =>
+      patch(`/v1/automation/schedules/${id}`, ScheduleDtoSchema, body),
+    breakers: () => request('/v1/automation/circuit-breakers', listOf(CircuitBreakerDtoSchema)),
+    resetBreaker: (key: string) =>
+      post(
+        `/v1/automation/circuit-breakers/${encodeURIComponent(key)}/reset`,
+        z.object({ key: z.string(), state: z.string() }),
+        {},
+      ),
+    tick: (which: 'scheduler' | 'recovery') =>
+      post(`/v1/automation/tick/${which}`, TickResultDtoSchema, {}),
+  },
   tenants: {
     list: () => request('/v1/tenants', listOf(TenantDtoSchema)),
     create: (body: CreateTenantRequest) => post('/v1/tenants', TenantDtoSchema, body),

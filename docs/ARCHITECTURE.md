@@ -68,6 +68,16 @@ build por paquete.
 `routes.ts` (validación Zod y respuesta HTTP). Reglas en `packages/business-rules`;
 contratos en `packages/shared/src/domain`. Ver `docs/SUPPLIER_PROFIT_ENGINES.md`.
 
+## Automatización
+
+`apps/api/src/automation/*` (detalle en `docs/AUTOMATION.md`). D1 es la fuente de
+verdad de los trabajos; Queues solo transporta punteros. Dos Cron Triggers
+(Scheduler y Recovery Worker) cubren todos los agentes.
+
+## Investigación y contenido
+
+`apps/api/src/modules/discovery` + reglas puras en `packages/business-rules/src/{discovery,content}` + adaptadores en `packages/integrations/src/discovery.ts`. Ver `docs/DISCOVERY_CONTENT.md`.
+
 ## Pendiente de especificación
 
 Autenticación, dominio de productos/proveedores/pedidos/afiliados, integraciones

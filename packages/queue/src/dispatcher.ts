@@ -24,9 +24,8 @@ export const dispatchMessage = async (
     return { status: 'invalid', issues: parsed.error.message };
   }
   const message = parsed.data;
-  // HandlerMap garantiza un handler por tipo. Al agregar tipos, TS puede requerir un cast
-  // aquí porque no correlaciona uniones mapeadas.
-  const handler: MessageHandler<QueueMessage> = handlers[message.type];
+  // HandlerMap garantiza un handler por tipo; TS no correlaciona uniones mapeadas.
+  const handler = handlers[message.type] as MessageHandler<QueueMessage>;
   await handler(message);
   return { status: 'handled', type: message.type };
 };

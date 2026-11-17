@@ -38,6 +38,50 @@ const toDto = (row: ProfitCalculationRow, productTitle: string): ProfitCalculati
 });
 
 /**
+ * Evalúa la viabilidad SIN persistir (lo usa Risk Guardian). Misma fuente de
+ * datos y reglas que `calculateForProduct`.
+ */
+export const evaluateForProduct = async (
+  db: Database,
+  tenantId: string,
+  productId: string,
+  supplierProductId: string,
+  config: ApiConfig,
+  now: Date,
+) => {
+  const product = await findProduct(db, tenantId, productId);
+  if (!product) return notFound('Producto');
+  const offer = await findSupplierProduct(db, tenantId, supplierProductId);
+  if (!offer) return notFound('Oferta');
+  if (offer.productId !== productId) {
+    return err(appError('CONFLICT', 'La oferta del proveedor no está vinculada a este producto'));
+  }
+  const supplier = await findSupplier(db, tenantId, offer.supplierId);
+  if (!supplier) return notFound('Proveedor');
+  const [evidence, inventory, costRows] = await Promise.all([
+    listEvidence(db, tenantId, supplier.id),
+    getLatestInventory(db, tenantId, offer.id),
+    listProductCostRows(db, tenantId, productId),
+  ]);
+  const result = evaluateViability({
+    supplier,
+    evidence: toEvidenceFacts(evidence),
+    offer,
+    inventory,
+    product,
+    components: costRows.map(toCostComponent),
+    policy: {
+      minMarginBps: config.MIN_NET_MARGIN_BPS,
+      maxPriceAgeHours: config.MAX_PRICE_AGE_HOURS,
+      maxStockAgeHours: config.MAX_STOCK_AGE_HOURS,
+    },
+    now,
+  });
+  if (!result.ok) return result;
+  return ok({ viability: result.value, product, offer, supplier, inventory });
+};
+
+/**
  * Calcula y GUARDA la rentabilidad de un producto con una oferta concreta,
  * usando exclusivamente datos registrados (proveedor, evidencia, precio, stock,
  * costos). No hay valores por defecto inventados: lo que falta bloquea.

@@ -5,3 +5,8 @@ export * from './supplier/score';
 export * from './profit/calculate-profit';
 export * from './profit/viability';
 export * from './financial/financial-guard';
+export * from './discovery/market';
+export * from './discovery/product-score';
+export * from './discovery/classify';
+export * from './discovery/risk-guardian';
+export * from './content/content-engine';

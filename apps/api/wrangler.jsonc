@@ -42,6 +42,22 @@
         "max_retries": 3,
         "dead_letter_queue": "viralcommerce-jobs-dlq",
       },
+      {
+        // DLQ: sus mensajes marcan el trabajo como DEAD_LETTER en D1.
+        "queue": "viralcommerce-jobs-dlq",
+        "max_batch_size": 10,
+        "max_batch_timeout": 30,
+        "max_retries": 3,
+      },
+    ],
+  },
+
+  // Exactamente 2 Cron Triggers (Cloudflare Cron usa UTC). Las frecuencias de los
+  // agentes viven en D1 (tabla job_schedules), no aquí.
+  "triggers": {
+    "crons": [
+      "* * * * *", // Scheduler central
+      "*/5 * * * *", // Recovery Worker
     ],
   },
 }

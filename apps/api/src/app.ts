@@ -5,6 +5,8 @@ import { isOriginAllowed, parseAllowedOrigins } from '@vc/security';
 import { API_VERSION, parseApiConfig, type ErrorResponse, type HealthResponse } from '@vc/shared';
 import type { AppBindings } from './env';
 import { requireTenant } from './middleware/tenant';
+import { automationRoutes } from './modules/automation/routes';
+import { discoveryRoutes } from './modules/discovery/routes';
 import { productRoutes, supplierProductRoutes } from './modules/catalog/routes';
 import { profitRoutes } from './modules/profit/routes';
 import { supplierRoutes } from './modules/suppliers/routes';
@@ -51,6 +53,8 @@ export const createApp = () => {
   v1.route('/suppliers', supplierRoutes);
   v1.route('/supplier-products', supplierProductRoutes);
   v1.route('/products', productRoutes);
+  v1.route('/automation', automationRoutes);
+  v1.route('/discovery', discoveryRoutes);
   v1.route('/', profitRoutes);
   app.route('/v1', v1);
 

@@ -76,3 +76,5 @@ export type NewAuditEvent = typeof auditEvents.$inferInsert;
 export * from './tables/suppliers';
 export * from './tables/catalog';
 export * from './tables/profit';
+export * from './tables/automation';
+export * from './tables/discovery';

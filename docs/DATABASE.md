@@ -39,7 +39,15 @@ por `drizzle-kit`, aplicado por Wrangler.
 | `product_costs`           | Componentes de costo por producto (fijo y/o % sobre precio)                                          |
 | `profit_calculations`     | Resultado de cada cálculo + foto de los datos usados (append-only)                                   |
 
-Detalle de reglas: [SUPPLIER_PROFIT_ENGINES.md](SUPPLIER_PROFIT_ENGINES.md).
+| `job_schedules` | Programaciones de agentes (frecuencia, zona horaria, próxima ejecución) |
+| `jobs` | Trabajos: estado, prioridad, idempotencia, lock/lease, intentos, resultado |
+| `job_attempts` | Historial de intentos (resultado, error, duración) |
+| `circuit_breakers` | Estado por tenant y tipo de trabajo |
+| `locks` | Locks globales con vencimiento (Scheduler, Recovery) |
+
+| Discovery (10 tablas) | Fuentes, categorías, competidores, productos detectados, observaciones, atributos, imágenes, análisis y contenido — ver DISCOVERY_CONTENT.md |
+
+Detalle de reglas: [SUPPLIER_PROFIT_ENGINES.md](SUPPLIER_PROFIT_ENGINES.md), [AUTOMATION.md](AUTOMATION.md) y [DISCOVERY_CONTENT.md](DISCOVERY_CONTENT.md).
 
 ## Flujo de cambios
 

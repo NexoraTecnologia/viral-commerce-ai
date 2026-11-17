@@ -15,6 +15,20 @@
       "when": 1794878804768,
       "tag": "0001_supplier_profit_engines",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1794880226905,
+      "tag": "0002_automation_core",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1794881557775,
+      "tag": "0003_discovery_content",
+      "breakpoints": true
     }
   ]
 }

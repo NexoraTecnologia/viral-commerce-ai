@@ -18,7 +18,25 @@ export const SystemPingMessageSchema = envelope(
   z.object({ note: z.string().max(200).optional() }),
 );
 
-export const QueueMessageSchema = z.discriminatedUnion('type', [SystemPingMessageSchema]);
+/**
+ * Puntero a un trabajo persistido en D1. La cola NO es la fuente de verdad:
+ * si el mensaje se pierde (p. ej. por la retención del plan gratuito), el
+ * Recovery Worker lo vuelve a despachar desde D1.
+ */
+export const JobExecuteMessageSchema = envelope(
+  'job.execute',
+  z.object({
+    jobId: z.uuid(),
+    tenantId: z.uuid(),
+    /** Menor = más urgente. Se usa para ordenar dentro de cada lote. */
+    priority: z.number().int().min(0).max(100),
+  }),
+);
+
+export const QueueMessageSchema = z.discriminatedUnion('type', [
+  SystemPingMessageSchema,
+  JobExecuteMessageSchema,
+]);
 export type QueueMessage = z.infer<typeof QueueMessageSchema>;
 export type QueueMessageType = QueueMessage['type'];
 
