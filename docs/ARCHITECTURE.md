@@ -61,6 +61,13 @@ build por paquete.
 3. Lógica en `business-rules`; persistencia vía `database`; trabajo lento → `queue`.
 4. Errores: formato estándar `{ error: { code, message } }`, sin detalles internos.
 
+## Módulos de dominio en la API
+
+`apps/api/src/modules/{tenants,suppliers,catalog,profit}`: cada módulo tiene
+`service.ts` (consultas Drizzle filtradas por tenant + llamada a reglas puras) y
+`routes.ts` (validación Zod y respuesta HTTP). Reglas en `packages/business-rules`;
+contratos en `packages/shared/src/domain`. Ver `docs/SUPPLIER_PROFIT_ENGINES.md`.
+
 ## Pendiente de especificación
 
 Autenticación, dominio de productos/proveedores/pedidos/afiliados, integraciones

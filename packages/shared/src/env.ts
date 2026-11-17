@@ -6,9 +6,15 @@ const booleanString = z
   .default('false')
   .transform((v) => v === 'true');
 
+/** Entero desde string de entorno, con rango. */
+const intString = (def: number, min: number, max: number) =>
+  z.coerce.number().int().min(min).max(max).default(def);
+
 /**
  * Variables de configuración NO secretas del Worker de la API.
  * Los secretos se declaran aparte y se cargan con `wrangler secret put`.
+ *
+ * Los umbrales son POLÍTICA (reglas de decisión), no datos financieros.
  */
 export const ApiConfigSchema = z.object({
   APP_ENV: z.enum(['development', 'staging', 'production']).default('development'),
@@ -20,6 +26,16 @@ export const ApiConfigSchema = z.object({
    * roadmap lo habilite explícitamente.
    */
   COMMERCIAL_ACTIONS_ENABLED: booleanString,
+  /** Margen neto mínimo en basis points (2000 = 20 %). */
+  MIN_NET_MARGIN_BPS: intString(2000, 0, 9999),
+  /** Antigüedad máxima del precio mayorista antes de considerarlo desactualizado. */
+  MAX_PRICE_AGE_HOURS: intString(72, 1, 24 * 90),
+  /** Antigüedad máxima del último control de stock. */
+  MAX_STOCK_AGE_HOURS: intString(24, 1, 24 * 30),
+  /** Antigüedad máxima del dato de fondos disponibles para el Financial Guard. */
+  MAX_FUNDS_DATA_AGE_HOURS: intString(24, 1, 24 * 7),
+  /** Riesgo de devolución máximo aceptado (bps). */
+  MAX_RETURN_RISK_BPS: intString(1500, 0, 10000),
 });
 export type ApiConfig = z.infer<typeof ApiConfigSchema>;
 

@@ -31,6 +31,10 @@ que parezcan reales. `.env.example` y `.dev.vars.example` contienen solo nombres
 
 ## Pendiente
 
+- **Contexto de tenant temporal:** el header `X-Tenant-Id` solo se acepta con
+  `APP_ENV=development`; en staging/production la API responde 401. Debe
+  reemplazarse por autenticación real antes de cualquier despliegue (Fase 2).
+
 - Autenticación y autorización por rol (Fase 2).
 - Rate limiting (evaluar opciones gratuitas de Cloudflare).
 - Política de retención de datos personales conforme a la Ley 25.326 (Argentina).

@@ -74,5 +74,6 @@ data/  scripts/        Datos locales (ignorados) y scripts auxiliares
 - [docs/ROADMAP.md](docs/ROADMAP.md)
 - [docs/DATABASE.md](docs/DATABASE.md)
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+- [docs/SUPPLIER_PROFIT_ENGINES.md](docs/SUPPLIER_PROFIT_ENGINES.md) — proveedores, rentabilidad y Financial Guard
 - [SECURITY.md](SECURITY.md)
 - [docs/specs/](docs/specs/) — especificaciones funcionales

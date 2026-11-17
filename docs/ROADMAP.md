@@ -15,6 +15,16 @@ funcionales en `docs/specs/`.
 - [x] Guardia de acciones comerciales (modo simulación por defecto)
 - [x] Documentación base
 
+## Fase 0.5 — Supplier Engine + Profit Engine ✅
+
+- [x] Registro de proveedores, evidencia, estados, puntaje e historial de verificación
+- [x] Catálogo, precio mayorista y controles de stock del proveedor
+- [x] Cálculo económico puro con umbral de margen configurable (20 %)
+- [x] Viabilidad de producto (proveedor, stock, precio, moneda, margen)
+- [x] Financial Guard (fondos, liquidación, vencimientos, devoluciones, financiación)
+- [x] Dashboard: Proveedores, Productos, Stock, Rentabilidad
+- [x] Tests de reglas puras + integración HTTP→SQLite real
+
 ## Fase 1 — Especificaciones y CI
 
 - [ ] Incorporar especificaciones funcionales en `docs/specs/`

@@ -13,6 +13,12 @@
     "APP_ENV": "development",
     "ALLOWED_ORIGINS": "http://localhost:5173",
     "COMMERCIAL_ACTIONS_ENABLED": "false",
+    // Umbrales de decisión (política, no datos financieros)
+    "MIN_NET_MARGIN_BPS": "2000",
+    "MAX_PRICE_AGE_HOURS": "72",
+    "MAX_STOCK_AGE_HOURS": "24",
+    "MAX_FUNDS_DATA_AGE_HOURS": "24",
+    "MAX_RETURN_RISK_BPS": "1500",
   },
 
   "d1_databases": [

@@ -25,11 +25,21 @@ por `drizzle-kit`, aplicado por Wrangler.
 
 ## Tablas actuales
 
-| Tabla          | Propósito                                                   |
-| -------------- | ----------------------------------------------------------- |
-| `tenants`      | Cuentas cliente del SaaS (`slug` único)                     |
-| `users`        | Usuarios por tenant, rol `owner/admin/operator/viewer`      |
-| `audit_events` | Registro inmutable de acciones; `dry_run` indica simulación |
+| Tabla                     | Propósito                                                                                            |
+| ------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `tenants`                 | Cuentas cliente del SaaS (`slug` único)                                                              |
+| `users`                   | Usuarios por tenant, rol `owner/admin/operator/viewer`                                               |
+| `audit_events`            | Registro inmutable de acciones; `dry_run` indica simulación                                          |
+| `suppliers`               | Proveedores: datos comerciales, ubicación, contactos, despacho, devoluciones, pago, estado y puntaje |
+| `supplier_evidence`       | Evidencia de verificación (PENDING → ACCEPTED/REJECTED, vencimiento)                                 |
+| `supplier_status_history` | Historial de verificación (append-only)                                                              |
+| `supplier_products`       | Catálogo del proveedor con precio mayorista, fecha y origen del precio                               |
+| `supplier_inventory`      | Controles de stock (histórico; vigente = último `checked_at`)                                        |
+| `products`                | Productos propios con precio de venta                                                                |
+| `product_costs`           | Componentes de costo por producto (fijo y/o % sobre precio)                                          |
+| `profit_calculations`     | Resultado de cada cálculo + foto de los datos usados (append-only)                                   |
+
+Detalle de reglas: [SUPPLIER_PROFIT_ENGINES.md](SUPPLIER_PROFIT_ENGINES.md).
 
 ## Flujo de cambios
 

@@ -1,22 +1,12 @@
-import { sql } from 'drizzle-orm';
 import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { timestamps } from './columns';
 
 /**
- * Esquema base (D1 / SQLite). Solo tablas transversales de la fundación:
- * multi-tenant, usuarios y auditoría. Las tablas de dominio (productos,
- * proveedores, pedidos, afiliados) se agregan cuando estén especificadas.
+ * Esquema base (D1 / SQLite): multi-tenant, usuarios y auditoría.
+ * Las tablas de dominio viven en ./tables/* y se re-exportan al final.
  *
  * Convenciones: ver docs/DATABASE.md.
  */
-
-const timestamps = {
-  createdAt: integer('created_at', { mode: 'timestamp_ms' })
-    .notNull()
-    .default(sql`(unixepoch('subsec') * 1000)`),
-  updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
-    .notNull()
-    .default(sql`(unixepoch('subsec') * 1000)`),
-};
 
 export const tenants = sqliteTable(
   'tenants',
@@ -82,3 +72,7 @@ export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type AuditEvent = typeof auditEvents.$inferSelect;
 export type NewAuditEvent = typeof auditEvents.$inferInsert;
+
+export * from './tables/suppliers';
+export * from './tables/catalog';
+export * from './tables/profit';
