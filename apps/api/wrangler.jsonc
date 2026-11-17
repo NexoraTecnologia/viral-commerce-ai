@@ -10,7 +10,9 @@
 
   // Variables NO secretas. Los secretos van con `wrangler secret put` o .dev.vars (local).
   "vars": {
-    "APP_ENV": "development",
+    // FAIL-CLOSED: lo desplegado es producción. El desarrollo local lo activa
+    // `npm run dev:api` con `--var APP_ENV:development` (ver package.json).
+    "APP_ENV": "production",
     "ALLOWED_ORIGINS": "http://localhost:5173",
     "COMMERCIAL_ACTIONS_ENABLED": "false",
     // Umbrales de decisión (política, no datos financieros)

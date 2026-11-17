@@ -47,6 +47,8 @@ por `drizzle-kit`, aplicado por Wrangler.
 
 | Discovery (10 tablas) | Fuentes, categorías, competidores, productos detectados, observaciones, atributos, imágenes, análisis y contenido — ver DISCOVERY_CONTENT.md |
 | Canales (8 tablas) | `channel_connections` (tokens cifrados), `oauth_states`, `channel_listings`, `channel_orders`, `channel_messages`, `webhook_events` (idempotencia), `integration_logs`, `rate_limit_windows` — ver CHANNELS.md |
+| Pedidos (12 tablas) | `orders`, `order_items`, `order_payments` (evidencia, idempotencia), `supplier_orders`, `shipments`, `order_returns`, `order_ledger_entries`, `order_events` (append-only), `funds_snapshots`, `support_tickets`, `support_messages`, `faq_entries` — ver ORDERS.md |
+| Gobierno (1 tabla) | `rule_change_requests`: propuestas de cambio de reglas (nunca se aplican desde el frontend) |
 | Afiliados (5 tablas) | `affiliate_networks`, `affiliate_products`, `affiliate_links`, `affiliate_clicks` (sin IP), `affiliate_conversions` |
 
 Detalle de reglas: [SUPPLIER_PROFIT_ENGINES.md](SUPPLIER_PROFIT_ENGINES.md), [AUTOMATION.md](AUTOMATION.md), [DISCOVERY_CONTENT.md](DISCOVERY_CONTENT.md) y [CHANNELS.md](CHANNELS.md).

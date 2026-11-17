@@ -1,5 +1,34 @@
 import { z } from 'zod';
 import {
+  AuditEventDtoSchema,
+  CustomerDtoSchema,
+  OverviewDtoSchema,
+  PageSchema,
+  RuleChangeRequestDtoSchema,
+  RuleDtoSchema,
+  SettingsDtoSchema,
+  ShipmentRowDtoSchema,
+  type CreateRuleChangeRequest,
+  FaqDtoSchema,
+  FundsSnapshotDtoSchema,
+  OrderDetailDtoSchema,
+  OrderDtoSchema,
+  SimulationResultDtoSchema,
+  SupportTicketDtoSchema,
+  type CreateFaqRequest,
+  type CreateOrderRequest,
+  type CreateTicketRequest,
+  type OrderState,
+  type RecordFundsSnapshotRequest,
+  type RecordLedgerEntryRequest,
+  type RecordPaymentRequest,
+  type RegisterShipmentRequest,
+  type ReplyTicketRequest,
+  type RequestDispatchRequest,
+  type ResolveReviewRequest,
+  type ShipmentEventRequest,
+  type SimulationScenario,
+  type SupplierResponseRequest,
   AffiliateConversionDtoSchema,
   AffiliateLinkDtoSchema,
   AffiliateNetworkDtoSchema,
@@ -316,6 +345,85 @@ export const api = {
       patch(`/v1/affiliates/conversions/${id}`, AffiliateConversionDtoSchema, { status }),
     summary: () => request('/v1/affiliates/summary', AffiliateSummaryDtoSchema),
     trackingUrl: (code: string) => buildApiUrl(apiBase(), `/r/${code}`),
+  },
+  command: {
+    overview: () => request('/v1/command/overview', OverviewDtoSchema),
+    shipments: () => request('/v1/command/shipments', listOf(ShipmentRowDtoSchema)),
+    customers: () => request('/v1/command/customers', listOf(CustomerDtoSchema)),
+    audit: (q: { source: 'SYSTEM' | 'ORDER'; page: number; pageSize: number; q?: string }) => {
+      const params = new URLSearchParams({
+        source: q.source,
+        page: String(q.page),
+        pageSize: String(q.pageSize),
+        ...(q.q ? { q: q.q } : {}),
+      });
+      return request(`/v1/command/audit?${params.toString()}`, PageSchema(AuditEventDtoSchema));
+    },
+    rules: () => request('/v1/command/rules', listOf(RuleDtoSchema)),
+    ruleRequests: () =>
+      request('/v1/command/rules/change-requests', listOf(RuleChangeRequestDtoSchema)),
+    proposeRule: (body: CreateRuleChangeRequest) =>
+      post('/v1/command/rules/change-requests', RuleChangeRequestDtoSchema, body),
+    withdrawRule: (id: string) =>
+      post(`/v1/command/rules/change-requests/${id}/withdraw`, RuleChangeRequestDtoSchema, {}),
+    settings: () => request('/v1/command/settings', SettingsDtoSchema),
+    updateSettings: (name: string) => patch('/v1/command/settings', SettingsDtoSchema, { name }),
+  },
+  orders: {
+    list: (state?: OrderState) =>
+      request(`/v1/orders${state ? `?state=${state}` : ''}`, listOf(OrderDtoSchema)),
+    get: (id: string) => request(`/v1/orders/${id}`, OrderDetailDtoSchema),
+    create: (body: CreateOrderRequest) => post('/v1/orders', OrderDetailDtoSchema, body),
+    advance: (id: string) => post(`/v1/orders/${id}/advance`, OrderDetailDtoSchema, {}),
+    pay: (id: string, body: RecordPaymentRequest) =>
+      post(`/v1/orders/${id}/payments`, OrderDetailDtoSchema, body),
+    requestDispatch: (id: string, body: RequestDispatchRequest) =>
+      post(`/v1/orders/${id}/dispatch-request`, OrderDetailDtoSchema, body),
+    supplierResponse: (id: string, body: SupplierResponseRequest) =>
+      post(`/v1/orders/${id}/supplier-response`, OrderDetailDtoSchema, body),
+    ship: (id: string, body: RegisterShipmentRequest) =>
+      post(`/v1/orders/${id}/shipments`, OrderDetailDtoSchema, body),
+    shipmentEvent: (id: string, body: ShipmentEventRequest) =>
+      post(`/v1/orders/${id}/shipment-events`, OrderDetailDtoSchema, body),
+    cancel: (id: string, reason: string) =>
+      post(`/v1/orders/${id}/cancel`, OrderDetailDtoSchema, { reason }),
+    requestReturn: (id: string, reason: string) =>
+      post(`/v1/orders/${id}/returns`, OrderDetailDtoSchema, { reason }),
+    decideReturn: (id: string, decision: 'APPROVE' | 'REJECT', note: string) =>
+      post(`/v1/orders/${id}/returns/decision`, OrderDetailDtoSchema, { decision, note }),
+    receiveReturn: (id: string, evidenceRef: string) =>
+      post(`/v1/orders/${id}/returns/received`, OrderDetailDtoSchema, { evidenceRef }),
+    resolve: (id: string, body: ResolveReviewRequest) =>
+      post(`/v1/orders/${id}/resolve`, OrderDetailDtoSchema, body),
+    ledger: (id: string, body: RecordLedgerEntryRequest) =>
+      post(`/v1/orders/${id}/ledger`, OrderDetailDtoSchema, body),
+    simulations: () => request('/v1/orders/simulations', z.object({ items: z.array(z.string()) })),
+    simulate: (scenario: SimulationScenario) =>
+      post(`/v1/orders/simulations/${scenario}`, SimulationResultDtoSchema, {}),
+  },
+  funds: {
+    list: () => request('/v1/finance/funds', listOf(FundsSnapshotDtoSchema)),
+    record: (body: RecordFundsSnapshotRequest) =>
+      post(
+        '/v1/finance/funds',
+        z.object({
+          snapshot: FundsSnapshotDtoSchema,
+          reevaluated: z.object({ evaluated: z.number(), changed: z.number() }),
+        }),
+        body,
+      ),
+  },
+  support: {
+    tickets: () => request('/v1/support/tickets', listOf(SupportTicketDtoSchema)),
+    createTicket: (body: CreateTicketRequest) =>
+      post('/v1/support/tickets', SupportTicketDtoSchema, body),
+    reply: (id: string, body: ReplyTicketRequest) =>
+      post(`/v1/support/tickets/${id}/reply`, SupportTicketDtoSchema, body),
+    escalate: (id: string, reason: string) =>
+      post(`/v1/support/tickets/${id}/escalate`, SupportTicketDtoSchema, { reason }),
+    close: (id: string) => post(`/v1/support/tickets/${id}/close`, SupportTicketDtoSchema, {}),
+    faqs: () => request('/v1/support/faqs', listOf(FaqDtoSchema)),
+    createFaq: (body: CreateFaqRequest) => post('/v1/support/faqs', FaqDtoSchema, body),
   },
   profit: {
     list: () => request('/v1/profit-calculations', listOf(ProfitCalculationDtoSchema)),

@@ -87,6 +87,13 @@ políticas, rate limiting, ventana de WhatsApp, comisiones) en
 `apps/api/src/modules/channels`. Rutas públicas: `/webhooks/*`, `/oauth/callback/*`,
 `/store/*`, `/r/:code`. Ver `docs/CHANNELS.md`.
 
+## Pedidos y fulfillment
+
+Motor puro en `packages/business-rules/src/orders` (máquina de estados, requisitos de
+evidencia, selección de proveedor, validación financiera, conciliación, atención al
+cliente y simulaciones). La capa con I/O (`apps/api/src/modules/orders`) junta los hechos
+registrados y aplica cada paso con compare-and-set. Ver `docs/ORDERS.md`.
+
 ## Pendiente de especificación
 
 Autenticación, dominio de productos/proveedores/pedidos/afiliados, integraciones

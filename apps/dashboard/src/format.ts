@@ -95,7 +95,7 @@ export const ISSUE_LABEL: Record<ViabilityIssue | FinancialGuardIssue, string> =
   UNPROFITABLE_AFTER_FINANCING: 'Pierde dinero tras financiar',
 };
 
-export type Tone = 'good' | 'warn' | 'bad' | 'neutral';
+export type Tone = 'good' | 'warn' | 'bad' | 'neutral' | 'info';
 
 export const supplierTone = (s: SupplierStatus): Tone =>
   s === 'VERIFIED'

@@ -20,7 +20,19 @@ import {
   parsePercentInput,
   type Tone,
 } from '../format';
-import { Badge, Empty, ErrorText, Field, Loading, Panel, useAction, useAsync } from '../ui';
+import {
+  Badge,
+  ControlsPager,
+  Empty,
+  ErrorText,
+  Field,
+  ListToolbar,
+  Loading,
+  Panel,
+  useAction,
+  useAsync,
+  useListControls,
+} from '../ui';
 
 /* ------------------------------- Etiquetas ------------------------------- */
 
@@ -120,7 +132,7 @@ const ConnectionCard = ({ c, onChange }: { c: ChannelConnectionDto; onChange: ()
               void action.run(async () => {
                 const { authorizationUrl } = await api.channels.startOAuth(c.id);
                 window.open(authorizationUrl, '_blank', 'noopener');
-              })
+              }, 'Se abrió la autorización en otra pestaña')
             }
           >
             Autorizar cuenta
@@ -255,7 +267,7 @@ const ConnectionCard = ({ c, onChange }: { c: ChannelConnectionDto; onChange: ()
   );
 };
 
-const ConnectionsView = () => {
+export const ConnectionsView = () => {
   const list = useAsync(() => api.channels.connections(), 'connections');
   const action = useAction();
   const [form, setForm] = useState<{
@@ -353,8 +365,13 @@ const GateChecks = ({ l }: { l: ChannelListingDto }) =>
     </ul>
   ) : null;
 
-const ListingsView = () => {
+export const ListingsView = () => {
   const listings = useAsync(() => api.channels.listings(), 'listings');
+  const listControls = useListControls(listings.data?.items, {
+    text: (l) => `${l.draft.title} ${CHANNEL_LABEL[l.channel]} ${l.externalId ?? ''}`,
+    filter: (l, v) => (v.startsWith('ch:') ? l.channel === v.slice(3) : l.status === v),
+    pageSize: 8,
+  });
   const connections = useAsync(() => api.channels.connections(), 'conn-for-listings');
   const candidates = useAsync(() => api.discovery.products('CANDIDATE'), 'candidates');
   const action = useAction();
@@ -462,12 +479,27 @@ const ListingsView = () => {
         </form>
         <ErrorText>{action.error}</ErrorText>
       </Panel>
-      <Panel title="Publicaciones">
-        {listings.loading && <Loading />}
+      <Panel title="Revisar publicaciones">
+        <ListToolbar
+          controls={listControls}
+          placeholder="Buscar publicación"
+          filterLabel="Todas"
+          filterOptions={[
+            ...(Object.keys(LISTING_LABEL) as ListingStatus[]).map((s) => ({
+              value: s,
+              label: LISTING_LABEL[s],
+            })),
+            ...(Object.keys(CHANNEL_LABEL) as ChannelKind[]).map((c) => ({
+              value: `ch:${c}`,
+              label: `Canal: ${CHANNEL_LABEL[c]}`,
+            })),
+          ]}
+        />
+        {listings.loading && !listings.data && <Loading />}
         <ErrorText>{listings.error}</ErrorText>
-        {listings.data?.items.length ? (
+        {listControls.filteredCount > 0 ? (
           <ul className="list">
-            {listings.data.items.map((l) => (
+            {listControls.pageItems.map((l) => (
               <li key={l.id} className="card">
                 <div className="panel-head">
                   <strong>{l.draft.title}</strong>
@@ -513,7 +545,7 @@ const ListingsView = () => {
                     onClick={() =>
                       void action.run(async () => {
                         setPreview(await api.channels.previewHtml(l.id));
-                      })
+                      }, false)
                     }
                   >
                     Vista previa
@@ -523,8 +555,15 @@ const ListingsView = () => {
             ))}
           </ul>
         ) : (
-          !listings.loading && <Empty>Sin publicaciones preparadas.</Empty>
+          !listings.loading && (
+            <Empty>
+              {listControls.totalCount === 0
+                ? 'Sin publicaciones preparadas.'
+                : 'Sin resultados para ese filtro.'}
+            </Empty>
+          )
         )}
+        <ControlsPager controls={listControls} />
       </Panel>
       {preview && (
         <Panel
@@ -554,7 +593,7 @@ const ListingsView = () => {
 
 /* --------------------------- Pedidos y mensajes --------------------------- */
 
-const OrdersView = () => {
+export const ChannelOrdersView = () => {
   const orders = useAsync(() => api.channels.orders(), 'orders');
   return (
     <Panel title="Pedidos de canales">
@@ -604,7 +643,7 @@ const OrdersView = () => {
   );
 };
 
-const MessagesView = () => {
+export const MessagesView = () => {
   const messages = useAsync(() => api.channels.messages(), 'messages');
   const connections = useAsync(() => api.channels.connections(), 'conn-for-messages');
   const action = useAction();
@@ -724,7 +763,7 @@ const CONVERSION_LABEL: Record<ConversionStatus, string> = {
   PAID: 'Pagada',
 };
 
-const AffiliatesView = () => {
+export const AffiliatesView = () => {
   const networks = useAsync(() => api.affiliates.networks(), 'aff-networks');
   const products = useAsync(() => api.affiliates.products(), 'aff-products');
   const links = useAsync(() => api.affiliates.links(), 'aff-links');
@@ -1124,7 +1163,7 @@ const AffiliatesView = () => {
 
 /* -------------------------------- Registro -------------------------------- */
 
-const LogView = () => {
+export const LogView = () => {
   const logs = useAsync(() => api.channels.logs(), 'logs');
   const events = useAsync(() => api.channels.webhookEvents(), 'webhooks');
   return (
@@ -1245,7 +1284,7 @@ export const ChannelsSection = () => {
       </nav>
       {view === 'conexiones' && <ConnectionsView />}
       {view === 'publicaciones' && <ListingsView />}
-      {view === 'pedidos' && <OrdersView />}
+      {view === 'pedidos' && <ChannelOrdersView />}
       {view === 'mensajes' && <MessagesView />}
       {view === 'afiliados' && <AffiliatesView />}
       {view === 'registro' && <LogView />}

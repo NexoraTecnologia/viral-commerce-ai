@@ -6,6 +6,8 @@ import { API_VERSION, parseApiConfig, type ErrorResponse, type HealthResponse } 
 import type { AppBindings } from './env';
 import { requireTenant } from './middleware/tenant';
 import { automationRoutes } from './modules/automation/routes';
+import { commandRoutes } from './modules/command/routes';
+import { fundsRoutes, orderRoutes, supportRoutes } from './modules/orders/routes';
 import { affiliateRoutes, channelRoutes, publicChannelRoutes } from './modules/channels/routes';
 import { discoveryRoutes } from './modules/discovery/routes';
 import { productRoutes, supplierProductRoutes } from './modules/catalog/routes';
@@ -60,6 +62,10 @@ export const createApp = () => {
   v1.route('/discovery', discoveryRoutes);
   v1.route('/channels', channelRoutes);
   v1.route('/affiliates', affiliateRoutes);
+  v1.route('/orders', orderRoutes);
+  v1.route('/support', supportRoutes);
+  v1.route('/finance/funds', fundsRoutes);
+  v1.route('/command', commandRoutes);
   v1.route('/', profitRoutes);
   app.route('/v1', v1);
 

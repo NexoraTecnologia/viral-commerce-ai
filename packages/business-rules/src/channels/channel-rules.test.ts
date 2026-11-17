@@ -40,7 +40,7 @@ const gateInput = (over: Partial<PublishGateInput> = {}): PublishGateInput => ({
     dispatchLeadTimeDaysMax: 1,
     deliveryTimeDaysMax: 5,
   },
-  stock: { status: 'IN_STOCK', quantity: 10, ageHours: 2, maxAgeHours: 24 },
+  stock: { status: 'IN_STOCK', quantity: 10, ageHours: 2, maxAgeHours: 24, requiredQuantity: 1 },
   marginBps: 2500,
   minMarginBps: 2000,
   policyIssues: [],
@@ -117,11 +117,27 @@ describe('publicación automática (gate)', () => {
     ['STOCK_VERIFIABLE', { stock: null }],
     [
       'STOCK_VERIFIABLE',
-      { stock: { status: 'IN_STOCK', quantity: 5, ageHours: 30, maxAgeHours: 24 } },
+      {
+        stock: {
+          status: 'IN_STOCK',
+          quantity: 5,
+          ageHours: 30,
+          maxAgeHours: 24,
+          requiredQuantity: 1,
+        },
+      },
     ],
     [
       'STOCK_VERIFIABLE',
-      { stock: { status: 'OUT_OF_STOCK', quantity: 0, ageHours: 1, maxAgeHours: 24 } },
+      {
+        stock: {
+          status: 'OUT_OF_STOCK',
+          quantity: 0,
+          ageHours: 1,
+          maxAgeHours: 24,
+          requiredQuantity: 1,
+        },
+      },
     ],
     ['MIN_MARGIN', { marginBps: 1999 }],
     ['MIN_MARGIN', { marginBps: null }],

@@ -207,9 +207,21 @@ export const logged = async <T>(
     createdAt: rt.now,
   });
   if (!result.ok && row.mode === 'LIVE' && result.error.code !== 'UNSUPPORTED_OPERATION') {
+    // Credencial rechazada (401/403): se SUSPENDE la integración hasta reconectar.
+    const suspended = result.error.code === 'UNAUTHORIZED';
     await rt.db
       .update(channelConnections)
-      .set({ lastError: result.error.message.slice(0, 500), updatedAt: rt.now })
+      .set({
+        lastError: result.error.message.slice(0, 500),
+        ...(suspended
+          ? {
+              status: 'EXPIRED' as const,
+              statusDetail:
+                'El canal rechazó la credencial: integración suspendida hasta reconectar',
+            }
+          : {}),
+        updatedAt: rt.now,
+      })
       .where(eq(channelConnections.id, row.id));
   }
   return result;

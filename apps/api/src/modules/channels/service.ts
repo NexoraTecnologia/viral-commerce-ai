@@ -423,6 +423,15 @@ const usableConnection = async (rt: ChannelRuntime, id: string) => {
   const row = await findConnection(rt.db, rt.tenantId, id);
   if (!row) return notFound('Conexión');
   if (row.status === 'DISABLED') return err(appError('CONFLICT', 'Conexión deshabilitada'));
+  // Una integración LIVE con token vencido, error o sin configurar queda suspendida:
+  // solo se puede verificar, renovar, reconectar o desconectar.
+  if (row.mode === 'LIVE' && row.channel !== 'OWN_STORE' && row.status !== 'CONNECTED') {
+    return err(
+      appError('CONFLICT', `Integración suspendida (${row.status}): verificala o reconectala`, {
+        status: row.status,
+      }),
+    );
+  }
   return ok(row);
 };
 
@@ -568,6 +577,7 @@ const evaluateGate = async (
           quantity: inventory.quantity,
           ageHours: (rt.now.getTime() - inventory.checkedAt.getTime()) / 3_600_000,
           maxAgeHours: rt.config.MAX_STOCK_AGE_HOURS,
+          requiredQuantity: draft.quantity,
         }
       : null,
     marginBps: evaluation?.ok ? (evaluation.value.viability.breakdown?.marginBps ?? null) : null,

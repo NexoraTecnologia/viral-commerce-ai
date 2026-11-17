@@ -115,6 +115,8 @@ export interface PublishGateInput {
     readonly quantity: number | null;
     readonly ageHours: number;
     readonly maxAgeHours: number;
+    /** Unidades que se ofrecerán en el canal. */
+    readonly requiredQuantity: number;
   } | null;
   readonly marginBps: number | null;
   readonly minMarginBps: number;
@@ -152,13 +154,15 @@ export const evaluatePublishGate = (input: PublishGateInput): PublishGateResult 
   const stockOk =
     st !== null &&
     (st.status === 'IN_STOCK' || st.status === 'LOW_STOCK') &&
-    (st.quantity === null || st.quantity > 0) &&
+    // Stock desconocido (sin cantidad informada) NO se considera verificable.
+    st.quantity !== null &&
+    st.quantity >= Math.max(1, st.requiredQuantity) &&
     st.ageHours <= st.maxAgeHours;
   add(
     'STOCK_VERIFIABLE',
     stockOk,
     st
-      ? `Stock ${st.status}, control de hace ${Math.round(st.ageHours)} h (máx. ${st.maxAgeHours} h)`
+      ? `Stock ${st.status} (${st.quantity === null ? 'cantidad no informada' : `${String(st.quantity)} u.`}), control de hace ${String(Math.round(st.ageHours))} h (máx. ${String(st.maxAgeHours)} h)`
       : 'Sin control de stock registrado',
   );
 

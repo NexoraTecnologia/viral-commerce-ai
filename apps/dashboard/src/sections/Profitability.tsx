@@ -155,7 +155,7 @@ const Simulator = () => {
           ],
         }),
       );
-    });
+    }, false);
   };
 
   return (

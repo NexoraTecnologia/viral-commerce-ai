@@ -540,6 +540,8 @@ describe('job manager', () => {
       'discovery.rescore',
       'discovery.source_sync',
       'inventory.stale_scan',
+      'orders.reevaluate',
+      'orders.supplier_timeout_scan',
       'profit.recalculate_product',
       'supplier.evidence_expiry_scan',
       'system.ping',

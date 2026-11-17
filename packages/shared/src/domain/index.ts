@@ -6,3 +6,5 @@ export * from './profit';
 export * from './automation';
 export * from './discovery';
 export * from './channels';
+export * from './orders';
+export * from './command';

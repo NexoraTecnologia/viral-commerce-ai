@@ -79,3 +79,5 @@ export * from './tables/profit';
 export * from './tables/automation';
 export * from './tables/discovery';
 export * from './tables/channels';
+export * from './tables/orders';
+export * from './tables/governance';

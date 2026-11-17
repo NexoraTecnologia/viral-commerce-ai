@@ -256,7 +256,8 @@ export const createMercadoLibreAdapter = (ctx: AdapterContext): ChannelAdapter =
       );
       if (!search.ok) return search;
       const items = [];
-      for (const id of search.value.results.slice(0, 50)) {
+      // Workers Free: 50 subrequests por invocación (1 búsqueda + hasta 40 ítems).
+      for (const id of search.value.results.slice(0, 40)) {
         const item = await getItem(id);
         if (!item.ok) return item;
         items.push({

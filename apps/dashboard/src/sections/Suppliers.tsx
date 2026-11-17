@@ -2,7 +2,19 @@ import { useState, type SubmitEvent } from 'react';
 import { SUPPLIER_TRANSITIONS, type EvidenceCategory, type SupplierStatus } from '@vc/shared';
 import { api } from '../api-client';
 import { EVIDENCE_LABEL, formatDateTime, SUPPLIER_STATUS_LABEL, supplierTone } from '../format';
-import { Badge, Empty, ErrorText, Field, Loading, Panel, useAction, useAsync } from '../ui';
+import {
+  Badge,
+  ControlsPager,
+  Empty,
+  ErrorText,
+  Field,
+  ListToolbar,
+  Loading,
+  Panel,
+  useAction,
+  useAsync,
+  useListControls,
+} from '../ui';
 
 const SupplierForm = ({ onCreated }: { onCreated: () => void }) => {
   const action = useAction();
@@ -432,6 +444,10 @@ const SupplierDetail = ({ id, onChanged }: { id: string; onChanged: () => void }
 
 export const SuppliersSection = () => {
   const suppliers = useAsync(() => api.suppliers.list(), 'all');
+  const controls = useListControls(suppliers.data?.items, {
+    text: (s) => `${s.legalName} ${s.province ?? ''} ${s.countryCode}`,
+    filter: (s, v) => s.status === v,
+  });
   const [selected, setSelected] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -459,51 +475,71 @@ export const SuppliersSection = () => {
             }}
           />
         )}
+        <ListToolbar
+          controls={controls}
+          placeholder="Buscar proveedor"
+          filterLabel="Todos los estados"
+          filterOptions={(
+            Object.keys(SUPPLIER_STATUS_LABEL) as (keyof typeof SUPPLIER_STATUS_LABEL)[]
+          ).map((k) => ({
+            value: k,
+            label: SUPPLIER_STATUS_LABEL[k],
+          }))}
+        />
         {suppliers.error && <ErrorText>{suppliers.error}</ErrorText>}
         {suppliers.loading && !suppliers.data ? (
           <Loading />
-        ) : suppliers.data?.items.length ? (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Proveedor</th>
-                <th>Estado</th>
-                <th className="num">Puntaje</th>
-                <th>Despacho directo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {suppliers.data.items.map((s) => (
-                <tr
-                  key={s.id}
-                  className={s.id === selected ? 'selected' : ''}
-                  onClick={() => {
-                    setSelected(s.id);
-                  }}
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') setSelected(s.id);
-                  }}
-                >
-                  <td>
-                    {s.legalName}
-                    <div className="muted small">
-                      {s.countryCode}
-                      {s.province ? ` · ${s.province}` : ''}
-                    </div>
-                  </td>
-                  <td>
-                    <Badge tone={supplierTone(s.status)}>{SUPPLIER_STATUS_LABEL[s.status]}</Badge>
-                  </td>
-                  <td className="num">{s.score}</td>
-                  <td>{s.directDispatch ? 'Sí' : 'No'}</td>
+        ) : controls.filteredCount > 0 ? (
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Proveedor</th>
+                  <th>Estado</th>
+                  <th className="num">Puntaje</th>
+                  <th>Despacho directo</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {controls.pageItems.map((s) => (
+                  <tr
+                    key={s.id}
+                    className={s.id === selected ? 'selected' : ''}
+                    onClick={() => {
+                      setSelected(s.id);
+                    }}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') setSelected(s.id);
+                    }}
+                  >
+                    <td>
+                      {s.legalName}
+                      <div className="muted small">
+                        {s.countryCode}
+                        {s.province ? ` · ${s.province}` : ''}
+                      </div>
+                    </td>
+                    <td>
+                      <Badge tone={supplierTone(s.status)}>{SUPPLIER_STATUS_LABEL[s.status]}</Badge>
+                    </td>
+                    <td className="num">{s.score}</td>
+                    <td>{s.directDispatch ? 'Sí' : 'No'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
-          !creating && <Empty>Todavía no hay proveedores. Registrá el primero.</Empty>
+          !creating && (
+            <Empty>
+              {controls.totalCount === 0
+                ? 'Todavía no hay proveedores. Registrá el primero.'
+                : 'Sin resultados para ese filtro.'}
+            </Empty>
+          )
         )}
+        <ControlsPager controls={controls} />
       </Panel>
       <Panel title="Detalle">
         {selected ? (

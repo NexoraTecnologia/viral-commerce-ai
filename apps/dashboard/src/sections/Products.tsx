@@ -9,7 +9,18 @@ import {
   parsePercentInput,
   SUPPLIER_STATUS_LABEL,
 } from '../format';
-import { Empty, ErrorText, Field, Loading, Panel, useAction, useAsync } from '../ui';
+import {
+  ControlsPager,
+  Empty,
+  ErrorText,
+  Field,
+  ListToolbar,
+  Loading,
+  Panel,
+  useAction,
+  useAsync,
+  useListControls,
+} from '../ui';
 
 export const COST_KIND_LABEL: Record<CostComponentKind, string> = {
   SHIPPING: 'Envío',
@@ -331,6 +342,10 @@ const OffersEditor = ({ productId, currency }: { productId: string; currency: Cu
 
 export const ProductsSection = () => {
   const products = useAsync(() => api.products.list(), 'all');
+  const controls = useListControls(products.data?.items, {
+    text: (p) => `${p.title} ${p.category ?? ''}`,
+    filter: (p, v) => p.status === v,
+  });
   const [selected, setSelected] = useState<string | null>(null);
   const product = products.data?.items.find((p) => p.id === selected);
 
@@ -338,41 +353,57 @@ export const ProductsSection = () => {
     <div className="split">
       <Panel title="Productos">
         <ProductForm onCreated={products.reload} />
+        <ListToolbar
+          controls={controls}
+          placeholder="Buscar producto"
+          filterLabel="Todos los estados"
+          filterOptions={['DRAFT', 'ACTIVE', 'PAUSED', 'ARCHIVED'].map((s) => ({
+            value: s,
+            label: s,
+          }))}
+        />
         {products.error && <ErrorText>{products.error}</ErrorText>}
         {products.loading && !products.data ? (
           <Loading />
-        ) : products.data?.items.length ? (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Producto</th>
-                <th className="num">Precio de venta</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.data.items.map((p) => (
-                <tr
-                  key={p.id}
-                  className={p.id === selected ? 'selected' : ''}
-                  onClick={() => {
-                    setSelected(p.id);
-                  }}
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') setSelected(p.id);
-                  }}
-                >
-                  <td>{p.title}</td>
-                  <td className="num">{formatCents(p.salePriceCents, p.currency)}</td>
-                  <td>{p.status}</td>
+        ) : controls.filteredCount > 0 ? (
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th className="num">Precio de venta</th>
+                  <th>Estado</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {controls.pageItems.map((p) => (
+                  <tr
+                    key={p.id}
+                    className={p.id === selected ? 'selected' : ''}
+                    onClick={() => {
+                      setSelected(p.id);
+                    }}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') setSelected(p.id);
+                    }}
+                  >
+                    <td>{p.title}</td>
+                    <td className="num">{formatCents(p.salePriceCents, p.currency)}</td>
+                    <td>{p.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
-          <Empty>Todavía no hay productos.</Empty>
+          <Empty>
+            {controls.totalCount === 0
+              ? 'Todavía no hay productos.'
+              : 'Sin resultados para ese filtro.'}
+          </Empty>
         )}
+        <ControlsPager controls={controls} />
       </Panel>
       <Panel title={product ? product.title : 'Detalle'}>
         {product ? (

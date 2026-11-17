@@ -11,3 +11,6 @@ export * from './discovery/classify';
 export * from './discovery/risk-guardian';
 export * from './content/content-engine';
 export * from './channels/channel-rules';
+export * from './orders/order-engine';
+export * from './orders/customer-service';
+export * from './orders/simulation';

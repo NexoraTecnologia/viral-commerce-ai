@@ -6,6 +6,7 @@ import { PermanentJobError, PRIORITY } from '@vc/queue';
 import { listSupplierProducts } from '../modules/catalog/service';
 import { autoPublishReady, checkConnection } from '../modules/channels/service';
 import { processWebhookEvent } from '../modules/channels/webhooks';
+import { reevaluateBlocked, scanSupplierTimeouts } from '../modules/orders/service';
 import { rescoreActive, syncSource } from '../modules/discovery/service';
 import { calculateForProduct } from '../modules/profit/service';
 import { listEvidence, toEvidenceFacts } from '../modules/suppliers/service';
@@ -230,6 +231,37 @@ export const channelsAutoPublish = defineHandler({
   run: (ctx) => autoPublishReady(runtimeOf(ctx)),
 });
 
+const orderRuntimeOf = (ctx: JobHandlerContext) => ({
+  db: ctx.db,
+  tenantId: ctx.tenantId,
+  config: ctx.config,
+  now: ctx.now,
+});
+
+/** Solicitudes al proveedor vencidas sin respuesta → bloqueo y búsqueda de alternativa. */
+export const ordersSupplierTimeoutScan = defineHandler({
+  type: 'orders.supplier_timeout_scan',
+  category: 'COMMERCIAL',
+  description: 'Marca sin respuesta a los proveedores que no confirmaron en el plazo.',
+  defaultPriority: PRIORITY.COMMERCIAL,
+  defaultMaxAttempts: 3,
+  defaultTimeoutSeconds: 60,
+  payloadSchema: z.object({}),
+  run: (ctx) => scanSupplierTimeouts(orderRuntimeOf(ctx)),
+});
+
+/** Reevalúa pedidos bloqueados (stock, proveedor, fondos) y envíos sin entrega confirmada. */
+export const ordersReevaluate = defineHandler({
+  type: 'orders.reevaluate',
+  category: 'COMMERCIAL',
+  description: 'Reevalúa pedidos bloqueados y envíos vencidos con los datos más recientes.',
+  defaultPriority: PRIORITY.NORMAL,
+  defaultMaxAttempts: 3,
+  defaultTimeoutSeconds: 120,
+  payloadSchema: z.object({}),
+  run: (ctx) => reevaluateBlocked(orderRuntimeOf(ctx)),
+});
+
 export const defaultHandlers = registryOf([
   systemPing,
   inventoryStaleScan,
@@ -240,4 +272,6 @@ export const defaultHandlers = registryOf([
   channelsWebhookProcess,
   channelsConnectionCheck,
   channelsAutoPublish,
+  ordersSupplierTimeoutScan,
+  ordersReevaluate,
 ]);

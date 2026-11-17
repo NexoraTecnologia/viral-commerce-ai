@@ -17,7 +17,11 @@ const intString = (def: number, min: number, max: number) =>
  * Los umbrales son POLÍTICA (reglas de decisión), no datos financieros.
  */
 export const ApiConfigSchema = z.object({
-  APP_ENV: z.enum(['development', 'staging', 'production']).default('development'),
+  /**
+   * FAIL-CLOSED: si falta, se asume producción (sin el header temporal de tenant).
+   * El modo desarrollo se activa explícitamente (`npm run dev:api` usa --var).
+   */
+  APP_ENV: z.enum(['development', 'staging', 'production']).default('production'),
   /** Lista de orígenes permitidos para CORS separados por coma. */
   ALLOWED_ORIGINS: z.string().default('http://localhost:5173'),
   /**

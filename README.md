@@ -70,6 +70,7 @@ data/  scripts/        Datos locales (ignorados) y scripts auxiliares
 ## Documentación
 
 - [CLAUDE.md](CLAUDE.md) — reglas permanentes del proyecto
+- [AUDIT_REPORT.md](AUDIT_REPORT.md) — auditoría integral (2026-11-17): **no apto para producción** todavía
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - [docs/ROADMAP.md](docs/ROADMAP.md)
 - [docs/DATABASE.md](docs/DATABASE.md)
@@ -77,6 +78,8 @@ data/  scripts/        Datos locales (ignorados) y scripts auxiliares
 - [docs/SUPPLIER_PROFIT_ENGINES.md](docs/SUPPLIER_PROFIT_ENGINES.md) — proveedores, rentabilidad y Financial Guard
 - [docs/AUTOMATION.md](docs/AUTOMATION.md) — Scheduler, colas, reintentos y recuperación
 - [docs/DISCOVERY_CONTENT.md](docs/DISCOVERY_CONTENT.md) — investigación, puntuación, Risk Guardian y contenido
+- [docs/DASHBOARD.md](docs/DASHBOARD.md) — Command Center: diseño, secciones, estados y reglas
+- [docs/ORDERS.md](docs/ORDERS.md) — pedidos, fulfillment, conciliación, atención y simulaciones
 - [docs/CHANNELS.md](docs/CHANNELS.md) — integraciones omnicanal, MOCK, webhooks y publicación automática
 - [SECURITY.md](SECURITY.md)
 - [docs/specs/](docs/specs/) — especificaciones funcionales

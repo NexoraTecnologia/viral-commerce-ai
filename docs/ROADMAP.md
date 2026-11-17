@@ -52,6 +52,26 @@ funcionales en `docs/specs/`.
 - [ ] Especificar pasarela de checkout, redes de afiliados concretas y carruseles de Instagram
 - [ ] Crear apps reales (Mercado Libre / Meta) y cargar secrets antes de cualquier prueba LIVE
 
+## Fase 0.9 — Order + Fulfillment Engine ✅
+
+- [x] Estados del pedido y bloqueos con requisitos de evidencia por estado
+- [x] Pago solo con evidencia del canal de pago; idempotente
+- [x] Stock verificado, selección de proveedor y validación financiera (Financial Guard + reservas)
+- [x] Despacho (bloqueado sin interruptor), confirmación, transportista, seguimiento y entrega
+- [x] Cancelaciones, devoluciones, reintegros con evidencia y conciliación económica
+- [x] Atención al cliente: consultas, FAQ, estado, plantillas veraces y escalamiento
+- [x] 7 simulaciones con las mismas reglas, sin efectos
+- [ ] Especificar división de pedidos entre proveedores y líneas de financiación
+
+## Fase 0.10 — Command Center UI ✅
+
+- [x] Dashboard oscuro (violeta/azul), sidebar compacta con 17 secciones y versión móvil
+- [x] Overview con KPIs reales y uso del plan gratuito (lo no medido se informa como tal)
+- [x] Envíos, Clientes, Finanzas, Agentes, Reglas, Auditoría y Configuración
+- [x] Estados LOADING / EMPTY / ERROR / SUCCESS; búsqueda, filtros y paginación
+- [x] Reglas: solo propuestas; aplicarlas requiere autorización del titular
+- [ ] Medir solicitudes de Workers y filas de D1 (API de analíticas de Cloudflare)
+
 ## Fase 1 — Especificaciones y CI
 
 - [ ] Incorporar especificaciones funcionales en `docs/specs/`

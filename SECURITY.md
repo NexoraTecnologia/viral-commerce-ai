@@ -53,3 +53,10 @@ con detalles explotables.
 - Webhooks de Meta validados con `X-Hub-Signature-256` (comparación en tiempo constante);
   notificaciones de Mercado Libre validadas por `application_id` y re-consulta del recurso.
 - Detalle en [docs/CHANNELS.md](docs/CHANNELS.md).
+
+## Modo de entorno (fail-closed)
+
+`APP_ENV` es `production` por defecto: fuera de desarrollo todo `/v1` exige autenticación
+(hoy inexistente → 401). El modo desarrollo solo se activa con `npm run dev:api`
+(`--var APP_ENV:development`). Nunca desplegar con `APP_ENV=development`.
+Ver [AUDIT_REPORT.md](AUDIT_REPORT.md).
