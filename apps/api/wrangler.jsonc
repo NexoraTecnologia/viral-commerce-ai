@@ -1,0 +1,41 @@
+{
+  // Configuración del Worker de la API. NO desplegar todavía (ver docs/DEPLOYMENT.md).
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "viralcommerce-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "observability": { "enabled": true },
+
+  // Variables NO secretas. Los secretos van con `wrangler secret put` o .dev.vars (local).
+  "vars": {
+    "APP_ENV": "development",
+    "ALLOWED_ORIGINS": "http://localhost:5173",
+    "COMMERCIAL_ACTIONS_ENABLED": "false",
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "viralcommerce-db",
+      // Reemplazar por el ID real tras `wrangler d1 create viralcommerce-db`.
+      // En desarrollo local (--local) cualquier valor funciona.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "../../packages/database/migrations",
+    },
+  ],
+
+  "queues": {
+    "producers": [{ "binding": "JOBS_QUEUE", "queue": "viralcommerce-jobs" }],
+    "consumers": [
+      {
+        "queue": "viralcommerce-jobs",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "dead_letter_queue": "viralcommerce-jobs-dlq",
+      },
+    ],
+  },
+}

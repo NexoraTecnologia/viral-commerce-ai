@@ -1,0 +1,26 @@
+{
+  "name": "@vc/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "typecheck": "tsc -p tsconfig.json",
+    "db:migrate:local": "wrangler d1 migrations apply viralcommerce-db --local"
+  },
+  "dependencies": {
+    "@vc/business-rules": "*",
+    "@vc/database": "*",
+    "@vc/integrations": "*",
+    "@vc/queue": "*",
+    "@vc/security": "*",
+    "@vc/shared": "*",
+    "hono": "^4.13.19",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261117.1",
+    "wrangler": "^4.163.0"
+  }
+}

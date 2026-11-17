@@ -1,0 +1,6 @@
+# Copiar a apps/api/.dev.vars para desarrollo local (ese archivo está en .gitignore).
+# Aquí van SOLO secretos locales. Las variables no secretas están en wrangler.jsonc.
+# No hay secretos requeridos en esta etapa.
+#
+# Ejemplo futuro (no usar valores reales en este archivo):
+# WEBHOOK_SIGNING_SECRET=
