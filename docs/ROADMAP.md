@@ -41,6 +41,17 @@ funcionales en `docs/specs/`.
 - [x] Content Engine con plantillas propias y control de afirmaciones
 - [ ] Especificar Risk Guardian completo (hoy reutiliza los controles existentes)
 
+## Fase 0.8 — Integraciones omnicanal ✅
+
+- [x] Adaptadores independientes: Mercado Libre, Instagram, WhatsApp Cloud API, tienda propia, afiliados
+- [x] Capacidades según la API oficial (lo no soportado no se simula) y modo MOCK por canal
+- [x] OAuth (state + PKCE), tokens cifrados, renovación, webhooks con firma, idempotencia, logs, rate limiting
+- [x] Publicación automática solo con todas las condiciones (gate) y Commercial Guard
+- [x] Tienda propia con checkout separado (no configurado; sin pagos simulados)
+- [x] Afiliados: redes, productos, enlaces, clics, conversiones y comisiones con respaldo
+- [ ] Especificar pasarela de checkout, redes de afiliados concretas y carruseles de Instagram
+- [ ] Crear apps reales (Mercado Libre / Meta) y cargar secrets antes de cualquier prueba LIVE
+
 ## Fase 1 — Especificaciones y CI
 
 - [ ] Incorporar especificaciones funcionales en `docs/specs/`

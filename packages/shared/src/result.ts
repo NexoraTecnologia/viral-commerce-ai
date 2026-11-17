@@ -17,6 +17,9 @@ export type AppErrorCode =
   | 'CONFLICT'
   | 'COMMERCIAL_ACTIONS_DISABLED'
   | 'INTEGRATION_NOT_CONFIGURED'
+  | 'UNSUPPORTED_OPERATION'
+  | 'RATE_LIMITED'
+  | 'UPSTREAM_ERROR'
   | 'INTERNAL_ERROR';
 
 export interface AppError {

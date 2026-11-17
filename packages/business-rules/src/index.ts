@@ -10,3 +10,4 @@ export * from './discovery/product-score';
 export * from './discovery/classify';
 export * from './discovery/risk-guardian';
 export * from './content/content-engine';
+export * from './channels/channel-rules';

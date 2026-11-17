@@ -78,6 +78,15 @@ verdad de los trabajos; Queues solo transporta punteros. Dos Cron Triggers
 
 `apps/api/src/modules/discovery` + reglas puras en `packages/business-rules/src/{discovery,content}` + adaptadores en `packages/integrations/src/discovery.ts`. Ver `docs/DISCOVERY_CONTENT.md`.
 
+## Canales e integraciones
+
+Adaptadores en `packages/integrations/src/channels` (sin I/O propio: `fetch`, reloj,
+credenciales y verificación de firmas se inyectan). Reglas puras (gate de publicación,
+políticas, rate limiting, ventana de WhatsApp, comisiones) en
+`packages/business-rules/src/channels`. Servicio, webhooks, tienda y afiliados en
+`apps/api/src/modules/channels`. Rutas públicas: `/webhooks/*`, `/oauth/callback/*`,
+`/store/*`, `/r/:code`. Ver `docs/CHANNELS.md`.
+
 ## Pendiente de especificación
 
 Autenticación, dominio de productos/proveedores/pedidos/afiliados, integraciones

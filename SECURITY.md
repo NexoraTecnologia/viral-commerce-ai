@@ -44,3 +44,12 @@ que parezcan reales. `.env.example` y `.dev.vars.example` contienen solo nombres
 
 Reportar de forma privada al responsable del repositorio. No abrir issues públicos
 con detalles explotables.
+
+## Tokens de integraciones
+
+- Cifrados en reposo (AES-256-GCM, clave `TOKEN_ENCRYPTION_KEY` en secret, AAD por conexión).
+- Nunca se devuelven por la API ni se escriben en logs; desconectar borra los tokens locales.
+- OAuth con `state` de un solo uso (hash en D1, 10 min) y PKCE S256.
+- Webhooks de Meta validados con `X-Hub-Signature-256` (comparación en tiempo constante);
+  notificaciones de Mercado Libre validadas por `application_id` y re-consulta del recurso.
+- Detalle en [docs/CHANNELS.md](docs/CHANNELS.md).

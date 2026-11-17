@@ -6,6 +6,7 @@ import { API_VERSION, parseApiConfig, type ErrorResponse, type HealthResponse } 
 import type { AppBindings } from './env';
 import { requireTenant } from './middleware/tenant';
 import { automationRoutes } from './modules/automation/routes';
+import { affiliateRoutes, channelRoutes, publicChannelRoutes } from './modules/channels/routes';
 import { discoveryRoutes } from './modules/discovery/routes';
 import { productRoutes, supplierProductRoutes } from './modules/catalog/routes';
 import { profitRoutes } from './modules/profit/routes';
@@ -47,6 +48,8 @@ export const createApp = () => {
   });
 
   app.route('/v1/tenants', tenantRoutes);
+  // Rutas públicas: webhooks (firma/app validada), callback OAuth, tienda y /r/:code.
+  app.route('/', publicChannelRoutes);
 
   const v1 = new Hono<AppBindings>();
   v1.use('*', requireTenant);
@@ -55,6 +58,8 @@ export const createApp = () => {
   v1.route('/products', productRoutes);
   v1.route('/automation', automationRoutes);
   v1.route('/discovery', discoveryRoutes);
+  v1.route('/channels', channelRoutes);
+  v1.route('/affiliates', affiliateRoutes);
   v1.route('/', profitRoutes);
   app.route('/v1', v1);
 

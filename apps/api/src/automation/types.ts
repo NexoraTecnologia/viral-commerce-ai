@@ -7,6 +7,7 @@ import {
   type QueueMessage,
 } from '@vc/queue';
 import type { ApiConfig, JobCategory } from '@vc/shared';
+import type { ChannelSecrets } from '../env';
 import type { AuditLogger } from './audit-logger';
 
 /** Reloj inyectable: en producción el del Worker (UTC); en tests, uno controlado. */
@@ -36,6 +37,8 @@ export interface JobHandlerContext {
   readonly config: ApiConfig;
   readonly now: Date;
   readonly audit: AuditLogger;
+  /** Secrets de integraciones (vacío si no hay ninguno configurado). */
+  readonly secrets: ChannelSecrets;
 }
 
 /** Definición de un tipo de trabajo ("agente"). Todos comparten el Scheduler central. */
@@ -93,6 +96,7 @@ export interface AutomationDeps {
   readonly workerId: string;
   readonly backoff?: BackoffPolicy;
   readonly breaker?: BreakerPolicy;
+  readonly secrets?: ChannelSecrets;
 }
 
 /** Tiempos operativos del motor. */

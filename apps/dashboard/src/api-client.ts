@@ -1,5 +1,26 @@
 import { z } from 'zod';
 import {
+  AffiliateConversionDtoSchema,
+  AffiliateLinkDtoSchema,
+  AffiliateNetworkDtoSchema,
+  AffiliateProductDtoSchema,
+  AffiliateSummaryDtoSchema,
+  ChannelConnectionDtoSchema,
+  ChannelListingDtoSchema,
+  ChannelMessageDtoSchema,
+  ChannelOrderDtoSchema,
+  IntegrationLogDtoSchema,
+  OAuthStartResponseSchema,
+  WebhookEventDtoSchema,
+  type ConnectWithTokenRequest,
+  type CreateAffiliateLinkRequest,
+  type CreateAffiliateNetworkRequest,
+  type CreateAffiliateProductRequest,
+  type CreateConnectionRequest,
+  type ConversionStatus,
+  type PrepareListingRequest,
+  type PrepareMessageRequest,
+  type RecordConversionRequest,
   AnalysisDtoSchema,
   CategoryDtoSchema,
   CompetitorDtoSchema,
@@ -234,6 +255,67 @@ export const api = {
       patch(`/v1/supplier-products/${id}/price`, SupplierProductDtoSchema, body),
     recordInventory: (id: string, body: RecordInventoryRequest) =>
       post(`/v1/supplier-products/${id}/inventory`, InventorySnapshotDtoSchema, body),
+  },
+  channels: {
+    connections: () => request('/v1/channels/connections', listOf(ChannelConnectionDtoSchema)),
+    createConnection: (body: CreateConnectionRequest) =>
+      post('/v1/channels/connections', ChannelConnectionDtoSchema, body),
+    startOAuth: (id: string) =>
+      post(`/v1/channels/connections/${id}/oauth/start`, OAuthStartResponseSchema, {}),
+    connectToken: (id: string, body: ConnectWithTokenRequest) =>
+      post(`/v1/channels/connections/${id}/token`, ChannelConnectionDtoSchema, body),
+    check: (id: string) =>
+      post(`/v1/channels/connections/${id}/check`, ChannelConnectionDtoSchema, {}),
+    disconnect: (id: string) =>
+      post(`/v1/channels/connections/${id}/disconnect`, ChannelConnectionDtoSchema, {}),
+    setEnabled: (id: string, enabled: boolean) =>
+      patch(`/v1/channels/connections/${id}`, ChannelConnectionDtoSchema, { enabled }),
+    syncOrders: (id: string) =>
+      post(`/v1/channels/connections/${id}/orders/sync`, z.object({ synced: z.number() }), {}),
+    syncQuestions: (id: string) =>
+      post(`/v1/channels/connections/${id}/questions/sync`, z.object({ synced: z.number() }), {}),
+    listings: () => request('/v1/channels/listings', listOf(ChannelListingDtoSchema)),
+    prepareListing: (body: PrepareListingRequest) =>
+      post('/v1/channels/listings', ChannelListingDtoSchema, body),
+    publish: (id: string) =>
+      post(`/v1/channels/listings/${id}/publish`, ChannelListingDtoSchema, {}),
+    pause: (id: string) => post(`/v1/channels/listings/${id}/pause`, ChannelListingDtoSchema, {}),
+    previewUrl: (id: string) => buildApiUrl(apiBase(), `/v1/channels/listings/${id}/preview`),
+    previewHtml: async (id: string): Promise<string> => {
+      const res = await fetch(buildApiUrl(apiBase(), `/v1/channels/listings/${id}/preview`), {
+        headers: tenantId ? { 'X-Tenant-Id': tenantId } : {},
+      });
+      if (!res.ok) throw new ApiError(res.status, 'HTTP_ERROR', `La API respondió ${res.status}`);
+      return res.text();
+    },
+    orders: () => request('/v1/channels/orders', listOf(ChannelOrderDtoSchema)),
+    messages: () => request('/v1/channels/messages', listOf(ChannelMessageDtoSchema)),
+    prepareMessage: (body: PrepareMessageRequest) =>
+      post('/v1/channels/messages', ChannelMessageDtoSchema, body),
+    sendMessage: (id: string) =>
+      post(`/v1/channels/messages/${id}/send`, ChannelMessageDtoSchema, {}),
+    logs: () => request('/v1/channels/logs', listOf(IntegrationLogDtoSchema)),
+    webhookEvents: () => request('/v1/channels/webhook-events', listOf(WebhookEventDtoSchema)),
+  },
+  affiliates: {
+    networks: () => request('/v1/affiliates/networks', listOf(AffiliateNetworkDtoSchema)),
+    createNetwork: (body: CreateAffiliateNetworkRequest) =>
+      post('/v1/affiliates/networks', AffiliateNetworkDtoSchema, body),
+    products: () => request('/v1/affiliates/products', listOf(AffiliateProductDtoSchema)),
+    createProduct: (body: CreateAffiliateProductRequest) =>
+      post('/v1/affiliates/products', AffiliateProductDtoSchema, body),
+    links: () => request('/v1/affiliates/links', listOf(AffiliateLinkDtoSchema)),
+    createLink: (body: CreateAffiliateLinkRequest) =>
+      post('/v1/affiliates/links', AffiliateLinkDtoSchema, body),
+    setLinkActive: (id: string, active: boolean) =>
+      patch(`/v1/affiliates/links/${id}`, AffiliateLinkDtoSchema, { active }),
+    conversions: () => request('/v1/affiliates/conversions', listOf(AffiliateConversionDtoSchema)),
+    recordConversion: (body: RecordConversionRequest) =>
+      post('/v1/affiliates/conversions', AffiliateConversionDtoSchema, body),
+    setConversionStatus: (id: string, status: ConversionStatus) =>
+      patch(`/v1/affiliates/conversions/${id}`, AffiliateConversionDtoSchema, { status }),
+    summary: () => request('/v1/affiliates/summary', AffiliateSummaryDtoSchema),
+    trackingUrl: (code: string) => buildApiUrl(apiBase(), `/r/${code}`),
   },
   profit: {
     list: () => request('/v1/profit-calculations', listOf(ProfitCalculationDtoSchema)),

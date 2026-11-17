@@ -5,3 +5,4 @@ export * from './catalog';
 export * from './profit';
 export * from './automation';
 export * from './discovery';
+export * from './channels';

@@ -1,13 +1,15 @@
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { missingRequiredEvidence } from '@vc/business-rules';
-import { suppliers } from '@vc/database';
+import { channelConnections, suppliers } from '@vc/database';
 import { PermanentJobError, PRIORITY } from '@vc/queue';
 import { listSupplierProducts } from '../modules/catalog/service';
+import { autoPublishReady, checkConnection } from '../modules/channels/service';
+import { processWebhookEvent } from '../modules/channels/webhooks';
 import { rescoreActive, syncSource } from '../modules/discovery/service';
 import { calculateForProduct } from '../modules/profit/service';
 import { listEvidence, toEvidenceFacts } from '../modules/suppliers/service';
-import { defineHandler, registryOf } from './types';
+import { defineHandler, registryOf, type JobHandlerContext } from './types';
 
 /**
  * Tipos de trabajo ("agentes") registrados. Todos son internos: leen D1 y
@@ -160,6 +162,74 @@ export const discoverySourceSync = defineHandler({
   },
 });
 
+const runtimeOf = (ctx: JobHandlerContext) => ({
+  db: ctx.db,
+  tenantId: ctx.tenantId,
+  config: ctx.config,
+  secrets: ctx.secrets,
+  now: ctx.now,
+});
+
+/** Procesa un webhook guardado (consulta el recurso real en el canal). */
+export const channelsWebhookProcess = defineHandler({
+  type: 'channels.webhook_process',
+  category: 'COMMERCIAL',
+  description: 'Procesa un webhook recibido de un canal (pedidos, mensajes, estados).',
+  defaultPriority: PRIORITY.COMMERCIAL,
+  defaultMaxAttempts: 5,
+  defaultTimeoutSeconds: 30,
+  payloadSchema: z.object({ eventId: z.uuid() }),
+  run: async (ctx, payload) => {
+    const r = await processWebhookEvent(runtimeOf(ctx), payload.eventId);
+    if (!r.ok) {
+      if (r.error.code === 'NOT_FOUND') throw new PermanentJobError(r.error.message);
+      throw new Error(r.error.message);
+    }
+    return r.value;
+  },
+});
+
+/** Verifica conexiones LIVE y renueva tokens vencidos cuando el canal lo soporta. */
+export const channelsConnectionCheck = defineHandler({
+  type: 'channels.connection_check',
+  category: 'MAINTENANCE',
+  description: 'Verifica el estado real de las conexiones y renueva tokens si corresponde.',
+  defaultPriority: PRIORITY.NORMAL,
+  defaultMaxAttempts: 3,
+  defaultTimeoutSeconds: 120,
+  payloadSchema: z.object({}),
+  run: async (ctx) => {
+    const rows = await ctx.db
+      .select({ id: channelConnections.id, status: channelConnections.status })
+      .from(channelConnections)
+      .where(
+        and(eq(channelConnections.tenantId, ctx.tenantId), eq(channelConnections.mode, 'LIVE')),
+      );
+    const result: Record<string, string> = {};
+    for (const row of rows) {
+      if (row.status === 'DISABLED') continue;
+      const r = await checkConnection(runtimeOf(ctx), row.id);
+      result[row.id] = r.ok ? r.value.status : r.error.code;
+    }
+    return { checked: Object.keys(result).length, result };
+  },
+});
+
+/**
+ * Publicación automática: intenta publicar las publicaciones READY. Cada una pasa
+ * por el gate completo; con COMMERCIAL_ACTIONS_ENABLED=false ninguna sale en LIVE.
+ */
+export const channelsAutoPublish = defineHandler({
+  type: 'channels.auto_publish',
+  category: 'COMMERCIAL',
+  description: 'Publica automáticamente solo si se cumplen todas las condiciones.',
+  defaultPriority: PRIORITY.NORMAL,
+  defaultMaxAttempts: 1,
+  defaultTimeoutSeconds: 120,
+  payloadSchema: z.object({}),
+  run: (ctx) => autoPublishReady(runtimeOf(ctx)),
+});
+
 export const defaultHandlers = registryOf([
   systemPing,
   inventoryStaleScan,
@@ -167,4 +237,7 @@ export const defaultHandlers = registryOf([
   profitRecalculateProduct,
   discoveryRescore,
   discoverySourceSync,
+  channelsWebhookProcess,
+  channelsConnectionCheck,
+  channelsAutoPublish,
 ]);

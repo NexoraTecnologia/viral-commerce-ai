@@ -28,7 +28,7 @@ import { runRecoveryTick } from '../../automation/recovery';
 import { runSchedulerTick } from '../../automation/scheduler';
 import { createSchedule, listSchedules, updateSchedule } from '../../automation/schedules';
 import { systemClock, type AutomationDeps } from '../../automation/types';
-import type { AppBindings } from '../../env';
+import { secretsFromEnv, type AppBindings } from '../../env';
 import { fail, idParam, readJson, respond } from '../../http';
 
 const depsFor = (c: Context<AppBindings>): AutomationDeps => ({
@@ -38,6 +38,7 @@ const depsFor = (c: Context<AppBindings>): AutomationDeps => ({
   handlers: defaultHandlers,
   config: c.var.config,
   workerId: `http:${newId()}`,
+  secrets: secretsFromEnv(c.env),
 });
 
 export const automationRoutes = new Hono<AppBindings>()

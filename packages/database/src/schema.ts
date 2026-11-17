@@ -78,3 +78,4 @@ export * from './tables/catalog';
 export * from './tables/profit';
 export * from './tables/automation';
 export * from './tables/discovery';
+export * from './tables/channels';

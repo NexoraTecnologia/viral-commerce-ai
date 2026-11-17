@@ -151,6 +151,7 @@ export const executeJob = async (deps: AutomationDeps, jobId: string): Promise<E
             config,
             now,
             audit,
+            secrets: deps.secrets ?? {},
           },
           job.payload,
         ),

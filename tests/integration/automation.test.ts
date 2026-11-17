@@ -534,6 +534,9 @@ describe('job manager', () => {
 
   it('los handlers reales están registrados y son internos', () => {
     expect([...defaultHandlers.keys()].sort()).toEqual([
+      'channels.auto_publish',
+      'channels.connection_check',
+      'channels.webhook_process',
       'discovery.rescore',
       'discovery.source_sync',
       'inventory.stale_scan',

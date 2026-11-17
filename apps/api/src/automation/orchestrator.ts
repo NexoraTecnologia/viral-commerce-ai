@@ -2,7 +2,7 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { createDb, jobs } from '@vc/database';
 import { parseQueueMessage } from '@vc/queue';
 import { newId, parseApiConfig } from '@vc/shared';
-import type { Env } from '../env';
+import { secretsFromEnv, type Env } from '../env';
 import { AuditLogger } from './audit-logger';
 import { executeJob } from './executor';
 import { defaultHandlers } from './handlers';
@@ -42,6 +42,7 @@ export const automationDepsFromEnv = (
   handlers: overrides.handlers ?? defaultHandlers,
   config: parseApiConfig({ ...env }),
   workerId: `worker:${newId()}`,
+  secrets: secretsFromEnv(env),
 });
 
 /**

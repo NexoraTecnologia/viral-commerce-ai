@@ -2,6 +2,7 @@ import { useEffect, useState, type SubmitEvent } from 'react';
 import type { HealthResponse, TenantDto } from '@vc/shared';
 import { api, errorMessage, fetchHealth, setTenant } from './api-client';
 import { AutomationSection } from './sections/Automation';
+import { ChannelsSection } from './sections/Channels';
 import { DiscoverySection } from './sections/Discovery';
 import { ProductsSection } from './sections/Products';
 import { ProfitabilitySection } from './sections/Profitability';
@@ -15,6 +16,7 @@ const TABS = [
   { id: 'stock', label: 'Stock' },
   { id: 'rentabilidad', label: 'Rentabilidad' },
   { id: 'descubrimiento', label: 'Descubrimiento' },
+  { id: 'canales', label: 'Canales' },
   { id: 'automatizacion', label: 'Automatización' },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
@@ -190,6 +192,7 @@ export const App = () => {
             {tab === 'stock' && <StockSection />}
             {tab === 'rentabilidad' && <ProfitabilitySection />}
             {tab === 'descubrimiento' && <DiscoverySection />}
+            {tab === 'canales' && <ChannelsSection />}
             {tab === 'automatizacion' && <AutomationSection />}
           </main>
         </>

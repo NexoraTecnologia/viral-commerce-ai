@@ -1,6 +1,16 @@
 # Copiar a apps/api/.dev.vars para desarrollo local (ese archivo está en .gitignore).
 # Aquí van SOLO secretos locales. Las variables no secretas están en wrangler.jsonc.
-# No hay secretos requeridos en esta etapa.
+# Ningún secreto es obligatorio: sin ellos, cada canal queda NOT_CONFIGURED.
+# Los valores reales se obtienen de las apps oficiales (Mercado Libre Developers / Meta for
+# Developers) creadas por el titular de la cuenta. Ver docs/CHANNELS.md.
 #
-# Ejemplo futuro (no usar valores reales en este archivo):
-# WEBHOOK_SIGNING_SECRET=
+# 32 bytes en base64 para cifrar tokens: openssl rand -base64 32
+# TOKEN_ENCRYPTION_KEY=
+# URL pública de la API (redirect_uri de OAuth)
+# PUBLIC_API_URL=
+# ML_APP_ID=
+# ML_CLIENT_SECRET=
+# INSTAGRAM_APP_ID=
+# INSTAGRAM_APP_SECRET=
+# META_APP_SECRET=
+# META_WEBHOOK_VERIFY_TOKEN=
